@@ -1,4 +1,4 @@
-from sqlalchemy import Column,Integer,String,Date
+from sqlalchemy import Column,Integer,String,Date,Boolean
 from db import Base,engine
 
 
@@ -8,7 +8,7 @@ class User(Base):
     username = Column(String,unique=True)
     password = Column(String)
     role = Column(String)
-    is_deleted = False
+    is_deleted = Column(Boolean)
 
 
 class Student(Base):
@@ -18,14 +18,14 @@ class Student(Base):
     surname = Column(String)
     fin_code = Column(String,unique=True)
     Birth_date = Column (Date)
-    is_deleted = False
+    is_deleted = Column(Boolean)
     
 class Course(Base):
     __tablename__="courses"
     id = Column(Integer,primary_key=True)
     subject = Column(String)
     description_of_subject = Column(String)
-    is_deleted = False
+    is_deleted = Column(Boolean)
 
 class Registration(Base):
     __tablename__="student_course_registration"
@@ -33,6 +33,6 @@ class Registration(Base):
     course_name = Column(String)
     student_name = Column(String)
     final_marks = Column(Integer)
-    is_deleted = False
+    is_deleted = Column(Boolean)
 
 Base.metadata.create_all(bind=engine)

@@ -22,13 +22,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_user(db:Session, username: str):
-    user = db.query(User).filter_by(username=username).first()
+    user = db.query(User).filter_by(username=username,is_deleted = False).first()
     if user:
         return user
     
 def authenticate_user(db:Session, username: str, password: str):
     user = get_user(db, username)
-    if not user:
+    if not user :
         return False #user does not exist in our system
     if not bcrypt.checkpw(password.encode("utf-8"),user.password.encode("utf-8")):        
         return False #user entered wrong password

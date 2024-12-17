@@ -13,3 +13,7 @@ class UserNottFoundException(DetailHTTPException):
 class UserIsExists(DetailHTTPException):
     STATUS_CODE=status.HTTP_400_BAD_REQUEST
     DETAIL = "User is exists"
+
+class Unauthorized(DetailHTTPException):
+    STATUS_CODE=401
+    DETAIL = "permission denied"

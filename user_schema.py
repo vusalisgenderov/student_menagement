@@ -13,14 +13,3 @@ class Userdeletescheme(BaseModel):
         extra="forbid"
 
 
-class userchangescheme(BaseModel):
-    password:str
-    new_password:str
-    class Config:
-        extra="forbid"
-
-class ResetUsers(BaseModel):
-    username:str
-    password:str
-    class Config:
-        extra = "forbid"
