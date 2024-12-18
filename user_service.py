@@ -2,9 +2,7 @@ from fastapi import Depends
 from models import *
 from sqlalchemy.orm import Session
 from exceptions import *
-from setting import DATABASE_URL
 from user_schema import *
-from datetime import date
 from jwt import get_current_user
 import bcrypt
 

@@ -10,9 +10,15 @@ class UserNottFoundException(DetailHTTPException):
     STATUS_CODE = status.HTTP_404_NOT_FOUND
     DETAIL = "user is not found"
 
+class CourseNotFoundException(DetailHTTPException):
+    STATUS_CODE = status.HTTP_404_NOT_FOUND
+    DETAIL = "course is not found"
+
 class UserIsExists(DetailHTTPException):
     STATUS_CODE=status.HTTP_400_BAD_REQUEST
     DETAIL = "User is exists"
+
+
 
 class Unauthorized(DetailHTTPException):
     STATUS_CODE=401

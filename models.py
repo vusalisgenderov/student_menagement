@@ -23,6 +23,7 @@ class Student(Base):
 class Course(Base):
     __tablename__="courses"
     id = Column(Integer,primary_key=True)
+    teacher_id = Column(Integer)
     subject = Column(String)
     description_of_subject = Column(String)
     is_deleted = Column(Boolean)
@@ -31,7 +32,7 @@ class Registration(Base):
     __tablename__="student_course_registration"
     id = Column(Integer,primary_key=True)
     course_name = Column(String)
-    student_name = Column(String)
+    student_id = Column(Integer)
     final_marks = Column(Integer)
     is_deleted = Column(Boolean)
 
