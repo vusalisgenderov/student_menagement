@@ -2,7 +2,9 @@ from fastapi import Depends
 from models import *
 from sqlalchemy.orm import Session
 from exceptions import *
+from setting import DATABASE_URL
 from user_schema import *
+from datetime import date
 from jwt import get_current_user
 import bcrypt
 
@@ -14,6 +16,11 @@ def get_this_user(current_user = Depends(get_current_user)):
 def create_user_in_base(data:Usercreateshcema,db:Session):
     hashed_password=bcrypt.hashpw(data.password.encode("utf-8"),bcrypt.gensalt())
     new_user = User(username=data.username,password=hashed_password.decode("utf-8"),role=data.role,is_deleted = False)
+    user = db.query(User).filter_by(username = data.username).first()
+
+    if user:
+        raise UserIsExists
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

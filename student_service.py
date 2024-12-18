@@ -30,7 +30,7 @@ def get_student_by_id_in_base(id:int,db:Session,current_user = Depends(get_curre
     student = db.query(Student).filter_by(id = id,is_deleted = False).first()
 
     if not student:
-        raise UserNottFoundException
+        raise StudentNotFoundException
 
     student_courses = db.query(Registration).filter_by(student_id = id).all()
 
@@ -60,7 +60,7 @@ def create_student_in_base(db:Session,data:Studentcreateshcema,current_user = De
     student = db.query(Student).filter_by(fin_code = data.fin_code).first()
     
     if student:
-        raise UserIsExists
+        raise StudentIsExists
     
     db.add(new_student)
     db.commit()
@@ -80,7 +80,7 @@ def delete_student_by_id(db:Session,data:Studentdeletescheme,current_user = Depe
         db.query(Student).filter_by(id = data.id).update({"is_deleted" : True})
         db.commit()
     else:
-        raise UserNottFoundException
+        raise StudentNotFoundException
     
     return {"msg":"user is deleted"}
     

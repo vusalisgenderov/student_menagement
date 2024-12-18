@@ -44,13 +44,13 @@ def create_course_in_base(db:Session, data:LessonCreateSchema, current_user = De
         raise UserNottFoundException
 
     if check_user_role.role == "admin":
-        raise Unauthorized
+        raise HTTPException(status_code=403,detail="only it can be assigned to teachers")
     
     
     check_course_exist = db.query(Course).filter_by(subject = data.subject ,teacher_id = data.teacher_id).first()
 
     if check_course_exist:
-        raise UserIsExists
+        raise CourseIsExists
 
     new_course = Course(subject = data.subject ,teacher_id = data.teacher_id, description_of_subject = data.description_of_subject, is_deleted = False)
 
@@ -80,12 +80,12 @@ def create_registr_course(db:Session,data:LessonRegistrSchema,current_user = Dep
     check_student_exist = db.query(Student).filter_by(id = data.student_id,is_deleted = False).first()
 
     if not check_student_exist:
-        raise UserNottFoundException
+        raise StudentNotFoundException
     
     check_student_exist_in_course = db.query(Registration).filter_by(student_id = data.student_id).first()
     
     if check_student_exist_in_course:
-        raise UserIsExists
+        raise StudentIsExists
 
     new_user = Registration(course_name = data.course_name,student_id = data.student_id,is_deleted = False)
 
@@ -111,7 +111,7 @@ def delete_course_by_id(db:Session,data:LessonDeleteSchema,current_user = Depend
     check_lesson_in_registr = db.query(Registration).filter_by(course_name = check_lesson_in_course.subject,is_deleted = False).first()
 
     if check_lesson_in_registr:
-        raise Unauthorized
+        raise HTTPException(status_code=401,detail="this course can't delete")
     
     db.query(Course).filter_by(id = data.course_id).update({"is_deleted":True})
     db.commit()

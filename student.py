@@ -5,7 +5,7 @@ from student_schema import *
 from student_service import *
 from db import get_db
 
-student_router = APIRouter(tags=["studnets"],prefix="/students")
+student_router = APIRouter(tags=["students"],prefix="/students")
 
 
 @student_router.get("/")
