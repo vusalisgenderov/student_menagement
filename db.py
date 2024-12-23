@@ -1,15 +1,13 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
-from setting import DATABASE_URL
+from settings import DATABASE_URL
 
-
-engine=create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(bind=engine)
 
-Base= declarative_base()
-
+Base = declarative_base()
 
 
 def get_db():

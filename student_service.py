@@ -1,86 +1,118 @@
-from fastapi import Depends
-from models import *
-from jwt import get_current_user
 from sqlalchemy.orm import Session
-from exceptions import *
-from student_schema import *
-from datetime import date
-
-def get_all_students_in_db(db:Session,current_user = Depends(get_current_user)):
-
-    this_user = db.query(User).filter_by(username = current_user['username']).first()
-
-    if this_user.role != "admin":
-        raise Unauthorized
-
-    all_user = db.query(Student).filter_by(is_deleted = False).all()
-    all_user_names = []
-    for user in all_user:
-        all_user_names.append(user.name)
-
-    return {"all_user":all_user_names}
-
-def get_student_by_id_in_base(id:int,db:Session,current_user = Depends(get_current_user)):
-    
-    this_user = db.query(User).filter_by(username = current_user['username']).first()
-
-    if this_user.role != "admin":
-        raise Unauthorized
-    
-    student = db.query(Student).filter_by(id = id,is_deleted = False).first()
-
-    if not student:
-        raise StudentNotFoundException
-
-    student_courses = db.query(Registration).filter_by(student_id = id).all()
-
-    courses_of_student = []
-
-    for subject in student_courses:
-        courses_of_student.append(subject.course_name)
-
-    stud_inf = {"student_name":student.name,"student_surname":student.surname,"birth_date":student.Birth_date,"fin_code":student.fin_code,"students_courses":courses_of_student}
-
-    return stud_inf
+from schema import *
+from models import *
+from exception import *
+from utility import *
+from jwt import get_current_user
+from fastapi import Depends
 
 
+def get_all_student_from_db(
+    db: Session, current_user: User = Depends(get_current_user)
+):
+    current_user_in_db = (
+        db.query(User).filter(User.username == current_user["sub"]).first()
+    )
+    if not current_user_in_db.role == "admin":
+        raise HTTPException(status_code=401, detail="Only admins can get data")
+    students = db.query(Student).filter(Student.is_deleted == False).all()
+    return [
+        {"Id": student.id, "Name": student.name, "Surname": student.surname}
+        for student in students
+    ]
 
 
-
-
-
-
-def create_student_in_base(db:Session,data:Studentcreateshcema,current_user = Depends(get_current_user)):
-    this_student = db.query(User).filter_by(username = current_user['username']).first()
-
-    if this_student.role != "admin":
-        raise Unauthorized
-    
-    new_student = Student(name = data.name,surname = data.surname,fin_code = data.fin_code,Birth_date = data.birth_date,is_deleted = False)
-    student = db.query(Student).filter_by(fin_code = data.fin_code).first()
-    
-    if student:
-        raise StudentIsExists
-    
-    db.add(new_student)
-    db.commit()
-    db.refresh(new_student)
-    return {"msg":"student is created"}
-
-def delete_student_by_id(db:Session,data:Studentdeletescheme,current_user = Depends(get_current_user)):
-    
-    this_student = db.query(User).filter_by(username = current_user['username']).first()
-
-    if this_student.role != "admin":
-        raise Unauthorized
-    
-    student = db.query(Student).filter_by(id = data.id,is_deleted = False).first()
-
-    if student:
-        db.query(Student).filter_by(id = data.id).update({"is_deleted" : True})
+def create_new_student_in_db(
+    *,
+    db: Session,
+    data: CreateNewStudent,
+    current_user: User = Depends(get_current_user),
+):
+    current_user_in_db = (
+        db.query(User).filter(User.username == current_user["sub"]).first()
+    )
+    if not current_user_in_db.role == "admin":
+        raise HTTPException(
+            status_code=401, detail="Only admins can create new student"
+        )
+    student_in_db = db.query(Student).filter(Student.fin == data.fin).first()
+    fin_list = []
+    students = db.query(Student).filter(Student.is_deleted == False).all()
+    for student in students:
+        fin_list.append(student.fin)
+    print(fin_list)
+    if not student_in_db:
+        new_student = Student(
+            name=data.name,
+            surname=data.surname,
+            fin=data.fin,
+            birth_date=data.birth_date,
+        )
+        db.add(new_student)
         db.commit()
-    else:
-        raise StudentNotFoundException
-    
-    return {"msg":"user is deleted"}
-    
+        db.refresh(new_student)
+        return {"Message": "Student has been created"}
+
+    if student_in_db.fin == data.fin and student_in_db.is_deleted == True:
+        student_in_db.name = data.name
+        student_in_db.surname = data.surname
+        student_in_db.is_deleted = False
+        student_in_db.birth_date = data.birth_date
+        student_in_db.fin = data.fin
+        db.commit()
+        return {"Message": "Student has been created"}
+    if student_in_db.fin == data.fin and student_in_db.is_deleted == False:
+        raise StudentAlreadyExist()
+
+
+def delete_student_from_db(
+    *, id: int, db: Session, current_user: User = Depends(get_current_user)
+):
+    current_user_in_db = (
+        db.query(User).filter(User.username == current_user["sub"]).first()
+    )
+    if not current_user_in_db.role == "admin":
+        raise HTTPException(status_code=401, detail="Only admins delete student")
+    student_in_db = db.query(Student).filter(Student.id == id).first()
+    if not student_in_db:
+        raise StudentNotFoundException()
+    elif student_in_db.is_deleted == True:
+        raise StudentNotFoundException()
+    student_in_db.is_deleted = True
+    db.commit()
+    return {
+        "Message": f"Student {student_in_db.name} with {student_in_db.id} id has been deleted successfully "
+    }
+
+
+def get_all_student_data_from_db(
+    *, id: int, db: Session, current_user: User = Depends(get_current_user)
+):
+    current_user_in_db = (
+        db.query(User).filter(User.username == current_user["sub"]).first()
+    )
+    if not current_user_in_db.role == "admin":
+        raise HTTPException(status_code=401, detail="Only admins delete student")
+    student_in_db = (
+        db.query(Student).filter(Student.id == id, Student.is_deleted == False).first()
+    )
+    if not student_in_db:
+        raise StudentNotFoundException()
+    courses = db.query(Registration).filter(Registration.student_id == id).all()
+    lst_course = [
+        {
+            "Lecturer_name": course.lecturer_name,
+            "Course_name": course.course_name,
+            "Final_point": course.final_point,
+        }
+        for course in courses
+    ]
+    if not courses:
+        lst_course = "Student did not enter course"
+    return {
+        "Name": student_in_db.name,
+        "Surname": student_in_db.surname,
+        "Fin": student_in_db.fin,
+        "birth_date": student_in_db.birth_date,
+        "Course_info": lst_course,
+    }
