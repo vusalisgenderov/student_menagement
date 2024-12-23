@@ -39,12 +39,12 @@ def delete_user_from_db(
         db.query(User).filter(User.username == current_user["sub"]).first()
     )
     if current_user_in_db.role != "admin":
-        raise HTTPException(status_code=401, detail="Only admins can delete")
+        raise HTTPException(status_code=401, detail="permission denied")
     user_to_delete = db.query(User).filter(User.username == username).first()
     if not user_to_delete or user_to_delete.is_deleted == True:
         raise UserNotFoundException()
     if current_user_in_db.username == user_to_delete.username:
-        raise HTTPException(status_code=403, detail="You cannot delete your account.")
+        raise HTTPException(status_code=403, detail=" no one can delete their account!")
     user_to_delete.is_deleted = True
     db.commit()
 

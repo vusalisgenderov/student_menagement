@@ -59,7 +59,7 @@ def create_new_course_in_db(
     if deleted_course:
         deleted_course.is_deleted = False
         db.commit()
-        return {"Message": "Course created successfully"}
+        return {"Message": "Course is created successfully"}
     if (
         db.query(Course)
         .filter(
@@ -68,7 +68,7 @@ def create_new_course_in_db(
         )
         .first()
     ):
-        raise HTTPException(status_code=400, detail="Course name already exists")
+        raise HTTPException(status_code=400, detail="Course already exists")
     if data.teacher_id in lecturer_lst and active_lecturer_lst:
         lecturer = db.query(User).filter(User.id == data.teacher_id).first()
         new_course = Course(
@@ -80,7 +80,7 @@ def create_new_course_in_db(
         db.add(new_course)
         db.commit()
         db.refresh(new_course)
-        return {"Message": "Course has been created"}
+        return {"Message": "Course is created"}
 
 
 def registration_in_db(
@@ -149,7 +149,7 @@ def registration_in_db(
         db.add(new_student_reg)
         db.commit()
         db.refresh(new_student_reg)
-        return {"Message": "Student has been registrated"}
+        return {"Message": "Student is registrated"}
 
 
 def get_course_info_from_db(
@@ -212,4 +212,4 @@ def delete_course_from_db(
         raise HTTPException(status_code=403, detail="You can not delete course")
     course.is_deleted = True
     db.commit()
-    return {"Message": "Course has been deleted succesfully"}
+    return {"Message": "Course is deleted succesfully"}

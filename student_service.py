@@ -51,7 +51,7 @@ def create_new_student_in_db(
         db.add(new_student)
         db.commit()
         db.refresh(new_student)
-        return {"Message": "Student has been created"}
+        return {"Message": "Student is created"}
 
     if student_in_db.fin == data.fin and student_in_db.is_deleted == True:
         student_in_db.name = data.name
@@ -60,7 +60,7 @@ def create_new_student_in_db(
         student_in_db.birth_date = data.birth_date
         student_in_db.fin = data.fin
         db.commit()
-        return {"Message": "Student has been created"}
+        return {"Message": "Student is created"}
     if student_in_db.fin == data.fin and student_in_db.is_deleted == False:
         raise StudentAlreadyExist()
 
@@ -81,7 +81,7 @@ def delete_student_from_db(
     student_in_db.is_deleted = True
     db.commit()
     return {
-        "Message": f"Student {student_in_db.name} with {student_in_db.id} id has been deleted successfully "
+        "Message": "Student is deleted successfully "
     }
 
 

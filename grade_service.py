@@ -130,19 +130,19 @@ def assign_grade_to_student_in_db(
     if not student_enrollment:
         raise HTTPException(
             status_code=404,
-            detail="Student is not enrolled in this course or not assigned to this lecturer",
+            detail="Student is not found in this course",
         )
 
     valid_grades = ["A", "B", "C", "D", "F"]
     if grade not in valid_grades:
         raise HTTPException(
-            status_code=400, detail="Invalid grade. Valid grades are A, B, C, D, F."
+            status_code=400, detail="the grades can be A, B, C, D, F."
         )
 
     student_enrollment.final_point = grade
     db.commit()
     return {
-        "message": f"Grade {grade} successfully assigned to student {student_id} for course {course_in_db.subject_name}"
+        "message": "mark is added successfully"
     }
 
 
@@ -154,7 +154,7 @@ def get_gpa_by_student_id_from_db(
     )
 
     if current_user_in_db.role != "admin":
-        raise HTTPException(status_code=403, detail="Only admins can view GPA")
+        raise HTTPException(status_code=403, detail="permission denied,only admin!")
 
     courses = (
         db.query(Registration)
